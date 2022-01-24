@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:wsc="http://www.mulesoft.org/schema/mule/wsc" xmlns:apikit-soap="http://www.mulesoft.org/schema/mule/apikit-soap"
+	xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core"
+	xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd
+http://www.mulesoft.org/schema/mule/apikit-soap http://www.mulesoft.org/schema/mule/apikit-soap/current/mule-apikit-soap.xsd
+http://www.mulesoft.org/schema/mule/wsc http://www.mulesoft.org/schema/mule/wsc/current/mule-wsc.xsd">
+	<flow name="getMovies" doc:id="e3c8cae3-efa0-4fb1-8325-d20ab49fd779" >
+		<set-variable value="#[message.attributes.queryParams.city default 'All']" doc:name="Set City" doc:id="94c11d5b-38bb-41ad-988a-91b15553546c" variableName="city"/>
+		<http:request method="GET" doc:name="Get Movies" doc:id="58d6832c-7f1a-45d3-88c0-7a34056806d7" config-ref="HTTP_Request_configuration" path="/bmsmoviemanagement/movies">
+			<http:headers ><![CDATA[#[output application/java
+---
+{
+	"client_secret": p('movie.client_secret'),
+	"client_id":  p('movie.client_id')
+}]]]></http:headers>
+			<http:uri-params ><![CDATA[#[output application/java
+---
+{
+	"city" : vars.city
+}]]]></http:uri-params>
+			<http:query-params ><![CDATA[#[output application/java
+---
+{
+	"genre" : vars.genre,
+	"city" : vars.city
+}]]]></http:query-params>
+		</http:request>
+		<ee:transform doc:name="Transform Message" doc:id="8469dc81-d120-499d-9cde-bb23668c3f59" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload
+]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<logger level="INFO" doc:name="Logger" doc:id="51cc9660-b4fd-4029-8d33-220ffbbf8401"/>
+	</flow>
+	<flow name="createOrder" doc:id="1138b32d-c1e5-4465-9e0d-5393493fc70a" >
+		<logger level="INFO" doc:name="Logger" doc:id="5eedd262-a3ee-46b6-a20c-5d1a8c0ab80b" />
+	</flow>
+	<flow name="getOrderByOrderID" doc:id="02b7b18d-f6bc-403a-b9df-8735cc70841e" >
+		<set-variable value="#[message.attributes.uriParams.order_id]" doc:name="OrderID" doc:id="22c6858a-fa3b-4a47-ac95-ef1b9b3ca289" variableName="orderid"/>
+		<ee:transform doc:name="Transform Message" doc:id="40a4690c-48c3-4e2a-b1da-6cce5b2ce64a" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/java
+ns soap http://schemas.xmlsoap.org/soap/envelope
+ns bms http://www.apisero.com/test/services/wsdl/BMSOrderManagementService
+---
+{
+    bms#retrieveOrderRequest:{
+    		bms#order_id: message.attributes.uriParams.order_id,
+    		bms#user_email: message.attributes.queryParams.user_email
+    	} write "application/xml"
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<wsc:consume doc:name="Consume" doc:id="26857bd8-6bb9-4d22-a82e-7db546817099" config-ref="Web_Service_Consumer_Config" operation="order"/>
+		<ee:transform doc:name="Transform Message" doc:id="7b9ea58a-38cc-42ab-90df-85ac4cf02fd6" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload
+]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<logger level="INFO" doc:name="Logger" doc:id="9e2aa78a-a720-4770-aaa2-8cf5ee2d0e27" />
+	</flow>
+</mule>

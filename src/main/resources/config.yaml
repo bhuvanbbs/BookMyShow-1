@@ -1,0 +1,13 @@
+movie:
+ host: "bmsmoviemanagement-api-shre.us-e2.cloudhub.io"
+ port: "80"
+ client_id: "6d907bacb2b443f6b8810616cfcd3781"
+ client_secret: "89963bB4626341c49C031614Cf9885dc"
+
+
+order:
+ wsdl: "http://bmsordermanagement-api-shre.us-e2.cloudhub.io/BMSOrderManagementService?wsdl"
+ service: "BMSOrderManagementService"
+ port: "BMSOrderManagementPort"
+ client_id: "6d907bacb2b443f6b8810616cfcd3781"
+ client_secret: "89963bB4626341c49C031614Cf9885dc"

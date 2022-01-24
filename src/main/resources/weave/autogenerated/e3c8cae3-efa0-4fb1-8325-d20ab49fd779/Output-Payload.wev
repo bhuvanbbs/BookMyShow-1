@@ -1,0 +1,4 @@
+%dw 2.0
+
+type auto_e3c8cae3_efa0_4fb1_8325_d20ab49fd779_Output_Payload = Array<{  date: String,   seat_category: "Regular" | "Recliner",   num_seats_available: Number,   city: "All" | "Delhi" | "Chennai" | "Mumbai" | "Bangalore",   movie_hall: String,   genre: "Action" | "Thriller" | "Comedy" | "Fiction",   format: "3D" | "2D" | "5D",   price_per_seat_category: Number,   language: "English" | "Hindi",   time: String,   movie_name: String,   _?: Any}>
+
